@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar-brand"><a href="/">Enrichment Passport</a></div>
+    <div class="navbar-menu">
+      <a href="/">Home</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/add">Add Achievement</a>
+      <a href="/logout">Logout</a>
+    </div>
+    <div class="navbar-action"><a href="/logout" class="button">Logout</a></div>
+  </header>
+
+  <main class="container">
+    <div class="content-card">
+      <% const safeTier = typeof currentTier !== 'undefined' ? currentTier : 'Bronze'; %>
+      <% const safeNextTier = typeof nextTier !== 'undefined' ? nextTier : null; %>
+      <% const safeProgress = typeof progress !== 'undefined' ? progress : 0; %>
+      <% const safeNextCount = typeof nextCount !== 'undefined' ? nextCount : 5; %>
+
+      <h1>Welcome, <%= username %>!</h1>
+      <p><strong>Current overall badge:</strong></p>
+      <img src="<%= overallBadge %>" alt="Overall Badge" width="100">
+      <p><strong>Tier:</strong> <%= safeTier %></p>
+      <% if(safeNextTier) { %>
+        <p><strong>Progress to <%= safeNextTier %>:</strong> <%= Math.round(safeProgress * 100) %>%</p>
+        <div style="width: 100%; background: #E0E7FF; border-radius: 999px; height: 14px; overflow: hidden; margin-bottom: 1rem;">
+          <div style="width: <%= Math.round(safeProgress * 100) %>%; background: #2563EB; height: 100%;"></div>
+        </div>
+        <p><small><%= (safeNextCount - achievements.length) > 0 ? (safeNextCount - achievements.length) : 0 %> more achievements to unlock <%= safeNextTier %>.</small></p>
+      <% } else { %>
+        <p><small>You're at the top tier 🎉.</small></p>
+      <% } %>
+
+      <p style="margin-bottom: 1rem;">
+        <a href="/profile">My Profile</a> | <a href="/leaderboard">Leaderboard</a>
+      </p>
+
+      <h2>Example Badges</h2>
+      <div style="display:flex; gap: 1rem; justify-content:center; flex-wrap:wrap; margin-bottom:1rem;">
+        <figure style="margin:0; text-align:center;">
+          <img src="/badges/bronze.png" alt="Bronze Badge" width="76" height="76">
+          <figcaption>Bronze</figcaption>
+        </figure>
+        <figure style="margin:0; text-align:center;">
+          <img src="/badges/silver.png" alt="Silver Badge" width="76" height="76">
+          <figcaption>Silver</figcaption>
+        </figure>
+        <figure style="margin:0; text-align:center;">
+          <img src="/badges/gold.png" alt="Gold Badge" width="76" height="76">
+          <figcaption>Gold</figcaption>
+        </figure>
+      </div>
+
+      <h2>Your Achievements</h2>
+      <ul>
+        <% achievements.forEach(a => { %>
+          <li>
+            <img src="<%= a.badge %>" width="30" style="vertical-align:middle; margin-right: 0.4rem;">
+            <%= a.title %>
+          </li>
+        <% }) %>
+      </ul>
+    </div>
+  </main>
+</body>
+</html>

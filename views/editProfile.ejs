@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit Profile</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar-brand"><a href="/">Enrichment Passport</a></div>
+    <div class="navbar-menu">
+      <a href="/">Home</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/profile">Profile</a>
+      <a href="/logout">Logout</a>
+    </div>
+    <div class="navbar-action"><a href="/logout" class="button">Logout</a></div>
+  </header>
+
+  <main class="container">
+    <div class="content-card">
+      <h1>Edit Profile</h1>
+      <form action="/profile/edit" method="POST">
+        <label for="email">Email</label><br>
+        <input type="email" name="email" id="email" value="<%= email %>" placeholder="you@example.com" style="width:100%"><br>
+
+        <label for="bio">Bio</label><br>
+        <textarea name="bio" id="bio" rows="4" style="width:100%" placeholder="Tell others about yourself"><%= bio %></textarea><br>
+
+        <label for="avatar">Avatar URL</label><br>
+        <input type="url" name="avatar" id="avatar" value="<%= avatar %>" placeholder="https://..." style="width:100%"><br>
+
+        <button type="submit">Save Profile</button>
+      </form>
+      <p><a href="/profile">Back to Profile</a></p>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Profile</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar-brand"><a href="/">Enrichment Passport</a></div>
+    <div class="navbar-menu">
+      <a href="/">Home</a>
+      <a href="/dashboard">Dashboard</a>
+      <a href="/add">Add Achievement</a>
+      <a href="/leaderboard">Leaderboard</a>
+      <a href="/logout">Logout</a>
+    </div>
+    <div class="navbar-action"><a href="/logout" class="button">Logout</a></div>
+  </header>
+
+  <main class="container">
+    <div class="content-card">
+      <h1>Profile: <%= username %></h1>
+      <div style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
+        <img src="<%= avatar %>" alt="Avatar" width="90" height="90" style="border-radius:50%; border:2px solid #2563EB;">
+        <div>
+          <p><strong>Email:</strong> <%= email || "(not set)" %></p>
+          <p><strong>Bio:</strong> <%= bio || "No bio yet." %></p>
+        </div>
+      </div>
+      <p>Total achievements: <strong><%= achievementCount %></strong></p>
+      <p>Current tier: <strong><%= tierInfo.tier %></strong></p>
+      <p>Average per week: <strong><%= averagePerWeek %></strong></p>
+      <img src="<%= tierInfo.badge %>" alt="Tier badge" width="80">
+
+      <div style="margin:1rem 0;">
+        <a href="/profile/edit" class="button">Edit Profile</a>
+        <button onclick="window.print()" class="button" style="background: #10B981; border: none;">Save as PDF</button>
+      </div>
+
+      <h2>Achievements history</h2>
+      <% if(achievements.length === 0) { %>
+        <p>No achievements yet. Start by adding one.</p>
+      <% } else { %>
+        <ul>
+          <% achievements.forEach(a => {
+              const dateValue = a.createdAt ? new Date(a.createdAt) : null;
+              const dateLabel = dateValue && !isNaN(dateValue.valueOf()) ? dateValue.toLocaleDateString() : 'Not available';
+            %>
+            <li><strong><%= a.title %></strong> - <em><%= dateLabel %></em> <img src="<%= a.badge %>" width="24" style="vertical-align:middle; margin-left: 0.4rem;"></li>
+          <% }) %>
+        </ul>
+      <% } %>
+
+      <p><a href="/dashboard">Back to Dashboard</a></p>
+    </div>
+  </main>
+</body>
+</html>
