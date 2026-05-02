@@ -21,20 +21,25 @@
   <main class="container">
     <section class="hero content-card">
       <div>
-        <span class="badge-pill">Personal dashboard</span>
-        <h1>Welcome back, <%= username %></h1>
-        <p class="lead">Track your most recent achievements, monitor badge progress and see the metrics that matter for your Level 6 portfolio.</p>
+        <span class="badge-pill"><%= isGuest ? 'Dashboard overview' : 'Personal dashboard' %></span>
+        <h1><%= isGuest ? 'Welcome to the Enrichment Dashboard' : `Welcome back, ${username}` %></h1>
+        <p class="lead"><%= isGuest ? 'Explore overall achievement progress and sign in to manage your own milestones.' : 'Track your most recent achievements, monitor badge progress and see the metrics that matter for your Level 6 portfolio.' %></p>
       </div>
       <div style="display:flex; flex-wrap:wrap; gap:0.75rem; justify-content:flex-end; align-items:center;">
-        <a class="button" href="/add">Add achievement</a>
-        <a class="button button-secondary" href="/profile">View profile</a>
+        <% if (isGuest) { %>
+          <a class="button" href="/login">Login</a>
+          <a class="button button-secondary" href="/register">Register</a>
+        <% } else { %>
+          <a class="button" href="/add">Add achievement</a>
+          <a class="button button-secondary" href="/profile">View profile</a>
+        <% } %>
       </div>
     </section>
 
     <div class="stats-grid">
       <div class="grid-card">
-        <h3>Total achievements</h3>
-        <p><%= achievements.length %></p>
+        <h3><%= isGuest ? 'Total achievements tracked' : 'My achievements' %></h3>
+        <p><%= isGuest ? totalAchievements : achievementCount %></p>
       </div>
       <div class="grid-card">
         <h3>Current tier</h3>
@@ -53,10 +58,12 @@
 
     <div class="content-card">
       <h2>Progress summary</h2>
-      <p class="small-text">Your current progress toward the next badge tier.</p>
+      <p class="small-text"><%= isGuest ? 'Browse the site and sign in to start tracking your own badge progress.' : 'Your current progress toward the next badge tier.' %></p>
       <div class="progress-bar" style="margin-top:0.9rem;"><span style="width:<%= Math.round(progress * 100) %>%;"></span></div>
-      <% if(nextTier) { %>
-        <p style="margin-top:1rem;"><strong><%= Math.round(progress * 100) %>%</strong> toward unlocking <strong><%= nextTier %></strong>. <%= Math.max(nextCount - achievements.length, 0) %> more achievements needed.</p>
+      <% if (isGuest) { %>
+        <p style="margin-top:1rem;"><strong><%= Math.round(progress * 100) %>%</strong> progress for the default starter tier. <a href="/login">Login</a> to make this dashboard your own.</p>
+      <% } else if(nextTier) { %>
+        <p style="margin-top:1rem;"><strong><%= Math.round(progress * 100) %>%</strong> toward unlocking <strong><%= nextTier %></strong>. <%= Math.max(nextCount - achievementCount, 0) %> more achievements needed.</p>
       <% } else { %>
         <p style="margin-top:1rem;"><strong>You've reached Gold.</strong> Keep adding achievements to maintain your position.</p>
       <% } %>
@@ -71,9 +78,12 @@
           <% } %>
           <% recentAchievements.forEach(a => { %>
             <li>
-              <span>
-                <strong><%= a.title %></strong><br>
+              <span style="display:grid; gap:0.35rem;">
+                <strong><%= a.title %></strong>
                 <small><%= a.dateLabel %></small>
+                <% if (a.attachment) { %>
+                  <a href="<%= a.attachment %>" target="_blank">View attachment</a>
+                <% } %>
               </span>
               <span class="badge-pill"><img src="<%= a.badge %>" alt="Badge"><%= a.badge.includes('gold') ? 'Gold' : a.badge.includes('silver') ? 'Silver' : 'Bronze' %></span>
             </li>

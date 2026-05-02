@@ -2,6 +2,8 @@
 const bodyParser = require("body-parser");
 const session = require("express-session");
 const fs = require("fs");
+const path = require("path");
+const multer = require("multer");
 
 const app = express();
 app.set("view engine", "ejs");
@@ -25,6 +27,32 @@ function readJsonFile(path, fallback) {
 
 let users = readJsonFile("users.json", []);
 let achievements = readJsonFile("achievements.json", []);
+
+const uploadDir = path.join(__dirname, "public", "uploads");
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, uploadDir),
+  filename: (req, file, cb) => {
+    const name = `${Date.now()}-${file.originalname.replace(/[^a-zA-Z0-9-.]/g, "-")}`;
+    cb(null, name);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowed = ["image/png", "image/jpeg", "image/jpg", "application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"];
+    if (allowed.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("Only images and document files are allowed."));
+    }
+  }
+});
 
 function badgeTierInfo(userAchievementsCount) {
   if (userAchievementsCount >= 10) return { badge: "/badges/gold.png", tier: "Gold", nextTier: null, nextCount: null };
@@ -112,13 +140,13 @@ app.post("/login", (req, res) => {
 });
 
 app.get("/dashboard", (req, res) => {
-  if (!req.session.user) return res.redirect("/login");
-  const userAchievements = achievements.filter(a => a.user === req.session.user);
+  const isGuest = !req.session.user;
+  const userAchievements = isGuest ? [] : achievements.filter(a => a.user === req.session.user);
   const tierInfo = badgeTierInfo(userAchievements.length);
   const progress = badgeProgress(userAchievements.length);
   const sortedAchievements = userAchievements.slice().sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
   const firstAchievement = sortedAchievements[0];
-  const recentAchievements = userAchievements
+  const recentAchievements = (isGuest ? achievements : userAchievements)
     .slice()
     .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
     .slice(0, 5)
@@ -126,20 +154,24 @@ app.get("/dashboard", (req, res) => {
       ...a,
       dateLabel: a.createdAt ? new Date(a.createdAt).toLocaleDateString() : "Unknown"
     }));
-  const activeDays = new Set(userAchievements
-    .filter(a => a.createdAt)
-    .map(a => new Date(a.createdAt).toISOString().slice(0, 10))).size;
-  const averagePerWeek = userAchievements.length > 0
-    ? (userAchievements.length / Math.max(1, ((Date.now() - new Date(firstAchievement ? firstAchievement.createdAt : Date.now()).getTime()) / (1000 * 60 * 60 * 24 * 7)))).toFixed(2)
+  const activeDays = isGuest
+    ? new Set(achievements.filter(a => a.createdAt).map(a => new Date(a.createdAt).toISOString().slice(0, 10))).size
+    : new Set(userAchievements.filter(a => a.createdAt).map(a => new Date(a.createdAt).toISOString().slice(0, 10))).size;
+  const averagePerWeek = (isGuest ? achievements.length : userAchievements.length) > 0
+    ? ((isGuest ? achievements.length : userAchievements.length) / Math.max(1, ((Date.now() - new Date((isGuest ? achievements : userAchievements)[0]?.createdAt || Date.now()).getTime()) / (1000 * 60 * 60 * 24 * 7)))).toFixed(2)
     : "0.00";
 
   res.render("dashboard", {
-    username: req.session.user,
+    username: req.session.user || null,
+    isGuest,
     achievements: userAchievements,
+    achievementCount: userAchievements.length,
+    totalAchievements: achievements.length,
+    totalUsers: users.length,
     overallBadge: tierInfo.badge,
-    currentTier: tierInfo.tier,
-    nextTier: tierInfo.nextTier,
-    nextCount: tierInfo.nextCount,
+    currentTier: isGuest ? "Guest" : tierInfo.tier,
+    nextTier: isGuest ? null : tierInfo.nextTier,
+    nextCount: isGuest ? null : tierInfo.nextCount,
     progress,
     recentAchievements,
     activeDays,
@@ -217,7 +249,7 @@ app.get("/add", (req, res) => {
   res.render("addAchievement");
 });
 
-app.post("/add", (req, res) => {
+app.post("/add", upload.single("attachment"), (req, res) => {
   if (!req.session.user) return res.redirect("/login");
   const { title } = req.body;
 
@@ -229,7 +261,8 @@ app.post("/add", (req, res) => {
     user: req.session.user,
     title,
     badge,
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
+    attachment: req.file ? `/uploads/${req.file.filename}` : null
   };
   achievements.push(newAchievement);
   fs.writeFileSync("achievements.json", JSON.stringify(achievements, null, 2));
