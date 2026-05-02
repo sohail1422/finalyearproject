@@ -1,6 +1,7 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>Leaderboard</title>
   <link rel="stylesheet" href="/style.css">
 </head>
@@ -20,29 +21,31 @@
   <main class="container">
     <div class="content-card">
       <h1>Leaderboard</h1>
-      <table style="width:100%; border-collapse: collapse; margin-top: 1rem;">
-        <thead>
-          <tr>
-            <th style="text-align:left; border-bottom: 1px solid #CBD5E1; padding: 8px;">Rank</th>
-            <th style="text-align:left; border-bottom: 1px solid #CBD5E1; padding: 8px;">User</th>
-            <th style="text-align:left; border-bottom: 1px solid #CBD5E1; padding: 8px;">Achievements</th>
-            <th style="text-align:left; border-bottom: 1px solid #CBD5E1; padding: 8px;">Tier</th>
-            <th style="text-align:left; border-bottom: 1px solid #CBD5E1; padding: 8px;">Badge</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% ranking.forEach((item, idx) => { %>
+      <div class="table-responsive" style="margin-top:1rem;">
+        <table>
+          <thead>
             <tr>
-              <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;"><%= idx + 1 %></td>
-              <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;"><%= item.username %></td>
-              <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;"><%= item.count %></td>
-              <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;"><%= item.tier %></td>
-              <td style="padding: 8px; border-bottom: 1px solid #E5E7EB;"><img src="<%= item.badge %>" width="26" alt="<%= item.tier %>"></td>
+              <th>Rank</th>
+              <th>User</th>
+              <th>Achievements</th>
+              <th>Tier</th>
+              <th>Badge</th>
             </tr>
-          <% }) %>
-        </tbody>
-      </table>
-      <p><a href="/dashboard">Back to Dashboard</a></p>
+          </thead>
+          <tbody>
+            <% ranking.forEach((item, idx) => { %>
+              <tr>
+                <td><%= idx + 1 %></td>
+                <td><%= item.username %></td>
+                <td><%= item.count %></td>
+                <td><%= item.tier %></td>
+                <td><img src="<%= item.badge %>" width="26" alt="<%= item.tier %>"></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <p style="margin-top:1rem;"><a href="/dashboard">Back to Dashboard</a></p>
     </div>
   </main>
 </body>

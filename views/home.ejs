@@ -1,6 +1,7 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>Enrichment Passport</title>
   <link rel="stylesheet" href="/style.css">
 </head>
@@ -9,51 +10,88 @@
     <div class="navbar-brand"><a href="/">Enrichment Passport</a></div>
     <div class="navbar-menu">
       <a href="/">Home</a>
-      <a href="/dashboard">Dashboard</a>
-      <a href="/login">Login</a>
-      <a href="/register">Register</a>
+      <% if (username) { %>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/leaderboard">Leaderboard</a>
+        <a href="/profile">Profile</a>
+        <a href="/add">Add Achievement</a>
+      <% } else { %>
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+      <% } %>
     </div>
-    <div class="navbar-action"></div>
+    <% if (username) { %>
+      <div class="navbar-action"><a href="/logout" class="button">Logout</a></div>
+    <% } else { %>
+      <div class="navbar-action"><a href="/login" class="button">Login</a></div>
+    <% } %>
   </header>
 
   <main class="container">
-    <div class="content-card">
-      <h1>Enrichment Passport</h1>
-      <p><strong>Enrichment Passport</strong> is your personal hub to track learning achievements, earn digital badges, and showcase your growth. Whether you're a student or lifelong learner, this platform helps you stay motivated and celebrate your progress!</p>
+    <section class="hero">
+      <div>
+        <h1>Track achievement progress with Enrichment Passport</h1>
+        <p class="lead">A polished student project dashboard for tracking personal achievements, managing badges, and staying motivated across enrichment activities.</p>
+        <% if (username) { %>
+          <a href="/dashboard" class="button">Go to Dashboard</a>
+        <% } else { %>
+          <a href="/register" class="button">Create an account</a>
+          <a href="/login" class="button button-secondary">Sign in</a>
+        <% } %>
+      </div>
+      <div class="grid-card" style="padding:1.75rem;">
+        <h3>Project highlights</h3>
+        <div class="stats-grid" style="margin-top:1rem;">
+          <div class="grid-card">
+            <h3>Total registered students</h3>
+            <p><%= totalUsers %></p>
+          </div>
+          <div class="grid-card">
+            <h3>Total achievements</h3>
+            <p><%= totalAchievements %></p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-      <h2>Key Features</h2>
-      <ul>
-        <li>Track your learning achievements</li>
-        <li>Earn badges as you progress</li>
-        <li>View your profile and progress dashboard</li>
-        <li>Compete on the leaderboard</li>
-        <li>Edit your profile and manage your journey</li>
-      </ul>
+    <section class="section-grid">
+      <div class="content-card">
+        <h2>Top performers</h2>
+        <ul class="leaderboard-list" style="margin-top:1rem;">
+          <% leaderboard.forEach((item, idx) => { %>
+            <li>
+              <span>
+                <strong>#<%= idx + 1 %> <%= item.username %></strong><br>
+                <small><%= item.count %> achievements</small>
+              </span>
+              <span class="badge-pill"><img src="<%= item.badge %>" alt="<%= item.tier %>"><%= item.tier %></span>
+            </li>
+          <% }) %>
+        </ul>
+        <p class="footer-note" style="margin-top:1rem;">Updated from the latest submitted achievements.</p>
+      </div>
 
-      <h2>Quick Start Guide</h2>
-      <ol>
-        <li><a href="/register">Register</a> for a free account</li>
-        <li>Login and visit your <a href="/dashboard">Dashboard</a></li>
-        <li>Add your first achievement</li>
-        <li>Earn badges and climb the <a href="/leaderboard">Leaderboard</a></li>
-      </ol>
-
-      <h2>Recent Achievements</h2>
-      <ul>
-        <li><strong>sohail16@outlook.com</strong>: ibm agile explorer badge <img src="/badges/bronze.png" alt="Bronze Badge" width="24"></li>
-      </ul>
-
-      <h2>Top Users</h2>
-      <ul>
-        <li><strong>sohail16@outlook.com</strong> - 1 achievement</li>
-      </ul>
-
-      <h2>Contact & Support</h2>
-      <p>Need help or have feedback? Email us at <a href="mailto:support@enrichmentpassport.com">support@enrichmentpassport.com</a></p>
-
-      <p style="margin-top:2rem;"><a href="/login">Login</a> | <a href="/register">Register</a></p>
-      <small>Version: 2.0 - Profile & Leaderboard enabled</small>
-    </div>
+      <div class="content-card">
+        <h2>Recent activity</h2>
+        <% if (recentAchievements.length === 0) { %>
+          <p>No achievements have been added yet. Encourage students to log their first milestones.</p>
+        <% } else { %>
+          <ul class="activity-list" style="margin-top:1rem;">
+            <% recentAchievements.forEach(a => { %>
+              <li>
+                <span><strong><%= a.title %></strong><br><small><%= a.dateLabel %></small></span>
+                <span class="badge-pill"><img src="<%= a.badge %>" alt="Badge"><%= a.badge.includes('gold') ? 'Gold' : a.badge.includes('silver') ? 'Silver' : 'Bronze' %></span>
+              </li>
+            <% }) %>
+          </ul>
+        <% } %>
+        <% if (username) { %>
+          <p style="margin-top:1rem;"><a href="/dashboard">See all your achievements</a></p>
+        <% } else { %>
+          <p style="margin-top:1rem;"><a href="/register">Join and add your first achievement</a></p>
+        <% } %>
+      </div>
+    </section>
   </main>
 </body>
 </html>

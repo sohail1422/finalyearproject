@@ -1,6 +1,7 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>Dashboard</title>
   <link rel="stylesheet" href="/style.css">
 </head>
@@ -11,61 +12,89 @@
       <a href="/">Home</a>
       <a href="/dashboard">Dashboard</a>
       <a href="/add">Add Achievement</a>
-      <a href="/logout">Logout</a>
+      <a href="/profile">Profile</a>
+      <a href="/leaderboard">Leaderboard</a>
     </div>
     <div class="navbar-action"><a href="/logout" class="button">Logout</a></div>
   </header>
 
   <main class="container">
-    <div class="content-card">
-      <% const safeTier = typeof currentTier !== 'undefined' ? currentTier : 'Bronze'; %>
-      <% const safeNextTier = typeof nextTier !== 'undefined' ? nextTier : null; %>
-      <% const safeProgress = typeof progress !== 'undefined' ? progress : 0; %>
-      <% const safeNextCount = typeof nextCount !== 'undefined' ? nextCount : 5; %>
-
-      <h1>Welcome, <%= username %>!</h1>
-      <p><strong>Current overall badge:</strong></p>
-      <img src="<%= overallBadge %>" alt="Overall Badge" width="100">
-      <p><strong>Tier:</strong> <%= safeTier %></p>
-      <% if(safeNextTier) { %>
-        <p><strong>Progress to <%= safeNextTier %>:</strong> <%= Math.round(safeProgress * 100) %>%</p>
-        <div style="width: 100%; background: #E0E7FF; border-radius: 999px; height: 14px; overflow: hidden; margin-bottom: 1rem;">
-          <div style="width: <%= Math.round(safeProgress * 100) %>%; background: #2563EB; height: 100%;"></div>
-        </div>
-        <p><small><%= (safeNextCount - achievements.length) > 0 ? (safeNextCount - achievements.length) : 0 %> more achievements to unlock <%= safeNextTier %>.</small></p>
-      <% } else { %>
-        <p><small>You're at the top tier 🎉.</small></p>
-      <% } %>
-
-      <p style="margin-bottom: 1rem;">
-        <a href="/profile">My Profile</a> | <a href="/leaderboard">Leaderboard</a>
-      </p>
-
-      <h2>Example Badges</h2>
-      <div style="display:flex; gap: 1rem; justify-content:center; flex-wrap:wrap; margin-bottom:1rem;">
-        <figure style="margin:0; text-align:center;">
-          <img src="/badges/bronze.png" alt="Bronze Badge" width="76" height="76">
-          <figcaption>Bronze</figcaption>
-        </figure>
-        <figure style="margin:0; text-align:center;">
-          <img src="/badges/silver.png" alt="Silver Badge" width="76" height="76">
-          <figcaption>Silver</figcaption>
-        </figure>
-        <figure style="margin:0; text-align:center;">
-          <img src="/badges/gold.png" alt="Gold Badge" width="76" height="76">
-          <figcaption>Gold</figcaption>
-        </figure>
+    <section class="hero content-card">
+      <div>
+        <span class="badge-pill">Personal dashboard</span>
+        <h1>Welcome back, <%= username %></h1>
+        <p class="lead">Track your most recent achievements, monitor badge progress and see the metrics that matter for your Level 6 portfolio.</p>
       </div>
+      <div style="display:flex; flex-wrap:wrap; gap:0.75rem; justify-content:flex-end; align-items:center;">
+        <a class="button" href="/add">Add achievement</a>
+        <a class="button button-secondary" href="/profile">View profile</a>
+      </div>
+    </section>
 
-      <h2>Your Achievements</h2>
-      <ul>
-        <% achievements.forEach(a => { %>
-          <li>
-            <img src="<%= a.badge %>" width="30" style="vertical-align:middle; margin-right: 0.4rem;">
-            <%= a.title %>
-          </li>
-        <% }) %>
-      </ul>
+    <div class="stats-grid">
+      <div class="grid-card">
+        <h3>Total achievements</h3>
+        <p><%= achievements.length %></p>
+      </div>
+      <div class="grid-card">
+        <h3>Current tier</h3>
+        <p><%= currentTier %></p>
+        <span class="badge-pill"><img src="<%= overallBadge %>" alt="Badge"><%= currentTier %></span>
+      </div>
+      <div class="grid-card">
+        <h3>Active days</h3>
+        <p><%= activeDays %></p>
+      </div>
+      <div class="grid-card">
+        <h3>Average per week</h3>
+        <p><%= averagePerWeek %></p>
+      </div>
+    </div>
+
+    <div class="content-card">
+      <h2>Progress summary</h2>
+      <p class="small-text">Your current progress toward the next badge tier.</p>
+      <div class="progress-bar" style="margin-top:0.9rem;"><span style="width:<%= Math.round(progress * 100) %>%;"></span></div>
+      <% if(nextTier) { %>
+        <p style="margin-top:1rem;"><strong><%= Math.round(progress * 100) %>%</strong> toward unlocking <strong><%= nextTier %></strong>. <%= Math.max(nextCount - achievements.length, 0) %> more achievements needed.</p>
+      <% } else { %>
+        <p style="margin-top:1rem;"><strong>You've reached Gold.</strong> Keep adding achievements to maintain your position.</p>
+      <% } %>
+    </div>
+
+    <div class="section-grid">
+      <div class="content-card">
+        <h2>Recent achievements</h2>
+        <ul class="activity-list">
+          <% if(recentAchievements.length === 0) { %>
+            <li><strong>No achievements yet.</strong> Add one to start building your profile.</li>
+          <% } %>
+          <% recentAchievements.forEach(a => { %>
+            <li>
+              <span>
+                <strong><%= a.title %></strong><br>
+                <small><%= a.dateLabel %></small>
+              </span>
+              <span class="badge-pill"><img src="<%= a.badge %>" alt="Badge"><%= a.badge.includes('gold') ? 'Gold' : a.badge.includes('silver') ? 'Silver' : 'Bronze' %></span>
+            </li>
+          <% }) %>
+        </ul>
+      </div>
+      <div class="content-card">
+        <h2>Badge insight</h2>
+        <p class="small-text">Badges are a quick visual signal of your progress. They help you present achievement milestones clearly in a final-year submission.</p>
+        <div style="display:flex; gap:1rem; flex-wrap:wrap; align-items:center; margin-top:1rem;">
+          <img src="<%= overallBadge %>" alt="Badge" width="120">
+          <div>
+            <p><strong>Tier:</strong> <%= currentTier %></p>
+            <% if(nextTier) { %>
+              <p><strong>Next tier:</strong> <%= nextTier %></p>
+              <p><strong>Target:</strong> <%= nextCount %> achievements</p>
+            <% } %>
+          </div>
+        </div>
+        <p class="footer-note" style="margin-top:1rem;">Designed for clarity with strong visual hierarchy, consistent spacing and an intuitive student experience.</p>
+      </div>
     </div>
   </main>
 </body>

@@ -1,4 +1,4 @@
-const express = require("express");
+﻿const express = require("express");
 const bodyParser = require("body-parser");
 const session = require("express-session");
 const fs = require("fs");
@@ -26,10 +26,9 @@ function readJsonFile(path, fallback) {
 let users = readJsonFile("users.json", []);
 let achievements = readJsonFile("achievements.json", []);
 
-// Badge assignment function
 function badgeTierInfo(userAchievementsCount) {
-  if(userAchievementsCount >= 10) return { badge: "/badges/gold.png", tier: "Gold", nextTier: null, nextCount: null };
-  if(userAchievementsCount >= 5) return { badge: "/badges/silver.png", tier: "Silver", nextTier: "Gold", nextCount: 10 };
+  if (userAchievementsCount >= 10) return { badge: "/badges/gold.png", tier: "Gold", nextTier: null, nextCount: null };
+  if (userAchievementsCount >= 5) return { badge: "/badges/silver.png", tier: "Silver", nextTier: "Gold", nextCount: 10 };
   return { badge: "/badges/bronze.png", tier: "Bronze", nextTier: "Silver", nextCount: 5 };
 }
 
@@ -39,8 +38,38 @@ function badgeProgress(userAchievementsCount) {
   return Math.min(1, userAchievementsCount / info.nextCount);
 }
 
-// Routes
-app.get("/", (req, res) => res.render("home"));
+function getLeaderboardData() {
+  return users.map(u => {
+    const count = achievements.filter(a => a.user === u.username).length;
+    const tierInfo = badgeTierInfo(count);
+    return { username: u.username, count, tier: tierInfo.tier, badge: tierInfo.badge };
+  }).sort((a, b) => b.count - a.count || a.username.localeCompare(b.username));
+}
+
+function getRecentAchievements(limit = 5) {
+  return achievements
+    .slice()
+    .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+    .slice(0, limit)
+    .map(a => ({
+      ...a,
+      dateLabel: a.createdAt ? new Date(a.createdAt).toLocaleDateString() : "Unknown"
+    }));
+}
+
+app.get("/", (req, res) => {
+  const leaderboard = getLeaderboardData().slice(0, 3);
+  const recentAchievements = getRecentAchievements(5);
+  const totalUsers = users.length;
+  const totalAchievements = achievements.length;
+  res.render("home", {
+    username: req.session.user || null,
+    totalUsers,
+    totalAchievements,
+    leaderboard,
+    recentAchievements
+  });
+});
 
 app.get("/debug-routes", (req, res) => {
   res.json({
@@ -55,7 +84,6 @@ app.get("/login", (req, res) => res.render("login", { message: "" }));
 app.get("/register", (req, res) => res.render("register", { message: "" }));
 
 app.post("/register", (req, res) => {
-  console.log("Register attempt", req.body);
   const { username, password } = req.body;
   if (!username || !password) {
     return res.render("register", { message: "Username and password are required" });
@@ -68,7 +96,6 @@ app.post("/register", (req, res) => {
   const newUser = { username, password };
   users.push(newUser);
   fs.writeFileSync("users.json", JSON.stringify(users, null, 2));
-  console.log("User registered", username);
   req.session.user = username;
   res.redirect("/dashboard");
 });
@@ -76,7 +103,7 @@ app.post("/register", (req, res) => {
 app.post("/login", (req, res) => {
   const { username, password } = req.body;
   const user = users.find(u => u.username === username && u.password === password);
-  if(user) {
+  if (user) {
     req.session.user = user.username;
     res.redirect("/dashboard");
   } else {
@@ -85,11 +112,26 @@ app.post("/login", (req, res) => {
 });
 
 app.get("/dashboard", (req, res) => {
-  if(!req.session.user) return res.redirect("/login");
+  if (!req.session.user) return res.redirect("/login");
   const userAchievements = achievements.filter(a => a.user === req.session.user);
-
   const tierInfo = badgeTierInfo(userAchievements.length);
   const progress = badgeProgress(userAchievements.length);
+  const sortedAchievements = userAchievements.slice().sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
+  const firstAchievement = sortedAchievements[0];
+  const recentAchievements = userAchievements
+    .slice()
+    .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+    .slice(0, 5)
+    .map(a => ({
+      ...a,
+      dateLabel: a.createdAt ? new Date(a.createdAt).toLocaleDateString() : "Unknown"
+    }));
+  const activeDays = new Set(userAchievements
+    .filter(a => a.createdAt)
+    .map(a => new Date(a.createdAt).toISOString().slice(0, 10))).size;
+  const averagePerWeek = userAchievements.length > 0
+    ? (userAchievements.length / Math.max(1, ((Date.now() - new Date(firstAchievement ? firstAchievement.createdAt : Date.now()).getTime()) / (1000 * 60 * 60 * 24 * 7)))).toFixed(2)
+    : "0.00";
 
   res.render("dashboard", {
     username: req.session.user,
@@ -98,16 +140,20 @@ app.get("/dashboard", (req, res) => {
     currentTier: tierInfo.tier,
     nextTier: tierInfo.nextTier,
     nextCount: tierInfo.nextCount,
-    progress
+    progress,
+    recentAchievements,
+    activeDays,
+    averagePerWeek
   });
 });
 
 app.get("/profile", (req, res) => {
-  if(!req.session.user) return res.redirect("/login");
+  if (!req.session.user) return res.redirect("/login");
   const userAchievements = achievements.filter(a => a.user === req.session.user);
   const tierInfo = badgeTierInfo(userAchievements.length);
 
-  const firstAchievement = userAchievements[0];
+  const sortedAchievements = userAchievements.slice().sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
+  const firstAchievement = sortedAchievements[0];
   const now = new Date();
   let startDate = now;
   if (firstAchievement && firstAchievement.createdAt) {
@@ -136,7 +182,7 @@ app.get("/profile", (req, res) => {
 });
 
 app.get("/profile/edit", (req, res) => {
-  if(!req.session.user) return res.redirect("/login");
+  if (!req.session.user) return res.redirect("/login");
   const userRecord = users.find(u => u.username === req.session.user) || {};
   res.render("editProfile", {
     username: req.session.user,
@@ -147,7 +193,7 @@ app.get("/profile/edit", (req, res) => {
 });
 
 app.post("/profile/edit", (req, res) => {
-  if(!req.session.user) return res.redirect("/login");
+  if (!req.session.user) return res.redirect("/login");
   const { email, bio, avatar } = req.body;
 
   const userIndex = users.findIndex(u => u.username === req.session.user);
@@ -162,22 +208,17 @@ app.post("/profile/edit", (req, res) => {
 });
 
 app.get("/leaderboard", (req, res) => {
-  const ranking = users.map(u => {
-    const count = achievements.filter(a => a.user === u.username).length;
-    const tierInfo = badgeTierInfo(count);
-    return { username: u.username, count, tier: tierInfo.tier, badge: tierInfo.badge };
-  }).sort((a, b) => b.count - a.count);
-
+  const ranking = getLeaderboardData();
   res.render("leaderboard", { ranking });
 });
 
 app.get("/add", (req, res) => {
-  if(!req.session.user) return res.redirect("/login");
+  if (!req.session.user) return res.redirect("/login");
   res.render("addAchievement");
 });
 
 app.post("/add", (req, res) => {
-  if(!req.session.user) return res.redirect("/login");
+  if (!req.session.user) return res.redirect("/login");
   const { title } = req.body;
 
   const userAchievementsCount = achievements.filter(a => a.user === req.session.user).length;
@@ -197,11 +238,11 @@ app.post("/add", (req, res) => {
 });
 
 app.get("/logout", (req, res) => {
-  req.session.destroy();
-  res.redirect("/login");
+  req.session.destroy(() => {
+    res.redirect("/login");
+  });
 });
 
-// 404 fallback for unknown routes
 app.use((req, res, next) => {
   res.status(404).render("error", { message: "Page not found", status: 404 });
 });

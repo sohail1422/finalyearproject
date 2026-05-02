@@ -1,6 +1,7 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>Profile</title>
   <link rel="stylesheet" href="/style.css">
 </head>
@@ -18,39 +19,67 @@
   </header>
 
   <main class="container">
-    <div class="content-card">
-      <h1>Profile: <%= username %></h1>
+    <div class="hero content-card">
       <div style="display:flex; align-items:center; gap:1rem; flex-wrap:wrap;">
-        <img src="<%= avatar %>" alt="Avatar" width="90" height="90" style="border-radius:50%; border:2px solid #2563EB;">
+        <img src="<%= avatar %>" alt="Avatar" width="96" height="96" style="border-radius:50%; border:2px solid #2563EB;">
         <div>
-          <p><strong>Email:</strong> <%= email || "(not set)" %></p>
-          <p><strong>Bio:</strong> <%= bio || "No bio yet." %></p>
+          <h1><%= username %></h1>
+          <p class="small-text"><strong>Email:</strong> <%= email || "(not set)" %></p>
+          <p class="small-text"><strong>Bio:</strong> <%= bio || "No bio yet." %></p>
         </div>
       </div>
-      <p>Total achievements: <strong><%= achievementCount %></strong></p>
-      <p>Current tier: <strong><%= tierInfo.tier %></strong></p>
-      <p>Average per week: <strong><%= averagePerWeek %></strong></p>
-      <img src="<%= tierInfo.badge %>" alt="Tier badge" width="80">
+    </div>
 
-      <div style="margin:1rem 0;">
-        <a href="/profile/edit" class="button">Edit Profile</a>
-        <button onclick="window.print()" class="button" style="background: #10B981; border: none;">Save as PDF</button>
+    <div class="stats-grid">
+      <div class="grid-card">
+        <h3>Total achievements</h3>
+        <p><%= achievementCount %></p>
       </div>
+      <div class="grid-card">
+        <h3>Current tier</h3>
+        <p><%= tierInfo.tier %></p>
+      </div>
+      <div class="grid-card">
+        <h3>Average per week</h3>
+        <p><%= averagePerWeek %></p>
+      </div>
+      <div class="grid-card">
+        <h3>Profile actions</h3>
+        <p><a href="/profile/edit">Edit profile</a></p>
+      </div>
+    </div>
 
+    <div class="content-card">
       <h2>Achievements history</h2>
       <% if(achievements.length === 0) { %>
         <p>No achievements yet. Start by adding one.</p>
       <% } else { %>
-        <ul>
+        <ul class="activity-list">
           <% achievements.forEach(a => {
               const dateValue = a.createdAt ? new Date(a.createdAt) : null;
               const dateLabel = dateValue && !isNaN(dateValue.valueOf()) ? dateValue.toLocaleDateString() : 'Not available';
             %>
-            <li><strong><%= a.title %></strong> - <em><%= dateLabel %></em> <img src="<%= a.badge %>" width="24" style="vertical-align:middle; margin-left: 0.4rem;"></li>
+            <li>
+              <span>
+                <strong><%= a.title %></strong><br>
+                <small><%= dateLabel %></small>
+              </span>
+              <span class="badge-pill"><img src="<%= a.badge %>" alt="Badge"><%= a.badge.includes('gold') ? 'Gold' : a.badge.includes('silver') ? 'Silver' : 'Bronze' %></span>
+            </li>
           <% }) %>
         </ul>
       <% } %>
+    </div>
 
+    <div class="content-card" style="display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap;">
+      <div>
+        <h2>Your badge</h2>
+        <p class="small-text">Keep your profile current and add achievements often to maintain progress.</p>
+      </div>
+      <img src="<%= tierInfo.badge %>" alt="Tier badge" width="92">
+    </div>
+
+    <div class="content-card">
       <p><a href="/dashboard">Back to Dashboard</a></p>
     </div>
   </main>
