@@ -4,18 +4,19 @@
   <meta charset="UTF-8">
   <title>Dashboard</title>
   <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
   <header class="navbar">
     <div class="navbar-brand"><a href="/">Enrichment Passport</a></div>
     <div class="navbar-menu">
-      <a href="/">Home</a>
-      <a href="/dashboard">Dashboard</a>
-      <a href="/add">Add Achievement</a>
-      <a href="/profile">Profile</a>
-      <a href="/leaderboard">Leaderboard</a>
+      <a href="/"><i class="fas fa-home"></i> Home</a>
+      <a href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="/add"><i class="fas fa-plus"></i> Add Achievement</a>
+      <a href="/profile"><i class="fas fa-user"></i> Profile</a>
+      <a href="/leaderboard"><i class="fas fa-trophy"></i> Leaderboard</a>
     </div>
-    <div class="navbar-action"><a href="/logout" class="button">Logout</a></div>
+    <div class="navbar-action"><a href="/logout" class="button"><i class="fas fa-sign-out-alt"></i> Logout</a></div>
   </header>
 
   <main class="container">
@@ -27,31 +28,31 @@
       </div>
       <div style="display:flex; flex-wrap:wrap; gap:0.75rem; justify-content:flex-end; align-items:center;">
         <% if (isGuest) { %>
-          <a class="button" href="/login">Login</a>
-          <a class="button button-secondary" href="/register">Register</a>
+          <a class="button" href="/login"><i class="fas fa-sign-in-alt"></i> Login</a>
+          <a class="button button-secondary" href="/register"><i class="fas fa-user-plus"></i> Register</a>
         <% } else { %>
-          <a class="button" href="/add">Add achievement</a>
-          <a class="button button-secondary" href="/profile">View profile</a>
+          <a class="button" href="/add"><i class="fas fa-plus"></i> Add achievement</a>
+          <a class="button button-secondary" href="/profile"><i class="fas fa-user"></i> View profile</a>
         <% } %>
       </div>
     </section>
 
     <div class="stats-grid">
       <div class="grid-card">
-        <h3><%= isGuest ? 'Total achievements tracked' : 'My achievements' %></h3>
+        <h3><i class="fas fa-trophy"></i> <%= isGuest ? 'Total achievements tracked' : 'My achievements' %></h3>
         <p><%= isGuest ? totalAchievements : achievementCount %></p>
       </div>
       <div class="grid-card">
-        <h3>Current tier</h3>
+        <h3><i class="fas fa-medal"></i> Current tier</h3>
         <p><%= currentTier %></p>
         <span class="badge-pill"><img src="<%= overallBadge %>" alt="Badge"><%= currentTier %></span>
       </div>
       <div class="grid-card">
-        <h3>Active days</h3>
+        <h3><i class="fas fa-calendar"></i> Active days</h3>
         <p><%= activeDays %></p>
       </div>
       <div class="grid-card">
-        <h3>Average per week</h3>
+        <h3><i class="fas fa-chart-line"></i> Average per week</h3>
         <p><%= averagePerWeek %></p>
       </div>
     </div>

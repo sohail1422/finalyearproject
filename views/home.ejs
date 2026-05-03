@@ -4,26 +4,27 @@
   <meta charset="UTF-8">
   <title>Enrichment Passport</title>
   <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
   <header class="navbar">
     <div class="navbar-brand"><a href="/">Enrichment Passport</a></div>
     <div class="navbar-menu">
-      <a href="/">Home</a>
+      <a href="/"><i class="fas fa-home"></i> Home</a>
       <% if (username) { %>
-        <a href="/dashboard">Dashboard</a>
-        <a href="/leaderboard">Leaderboard</a>
-        <a href="/profile">Profile</a>
-        <a href="/add">Add Achievement</a>
+        <a href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+        <a href="/leaderboard"><i class="fas fa-trophy"></i> Leaderboard</a>
+        <a href="/profile"><i class="fas fa-user"></i> Profile</a>
+        <a href="/add"><i class="fas fa-plus"></i> Add Achievement</a>
       <% } else { %>
-        <a href="/login">Login</a>
-        <a href="/register">Register</a>
+        <a href="/login"><i class="fas fa-sign-in-alt"></i> Login</a>
+        <a href="/register"><i class="fas fa-user-plus"></i> Register</a>
       <% } %>
     </div>
     <% if (username) { %>
-      <div class="navbar-action"><a href="/logout" class="button">Logout</a></div>
+      <div class="navbar-action"><a href="/logout" class="button"><i class="fas fa-sign-out-alt"></i> Logout</a></div>
     <% } else { %>
-      <div class="navbar-action"><a href="/login" class="button">Login</a></div>
+      <div class="navbar-action"><a href="/register" class="button"><i class="fas fa-rocket"></i> Start Now</a></div>
     <% } %>
   </header>
 
