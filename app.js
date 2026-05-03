@@ -112,16 +112,16 @@ app.get("/login", (req, res) => res.render("login", { message: "" }));
 app.get("/register", (req, res) => res.render("register", { message: "" }));
 
 app.post("/register", (req, res) => {
-  const { username, password } = req.body;
-  if (!username || !password) {
-    return res.render("register", { message: "Username and password are required" });
+  const { username, password, name } = req.body;
+  if (!username || !password || !name) {
+    return res.render("register", { message: "Username, password, and name are required" });
   }
 
   if (users.some(u => u.username === username)) {
     return res.render("register", { message: "User already exists" });
   }
 
-  const newUser = { username, password };
+  const newUser = { username, password, name };
   users.push(newUser);
   fs.writeFileSync("users.json", JSON.stringify(users, null, 2));
   req.session.user = username;
@@ -141,6 +141,7 @@ app.post("/login", (req, res) => {
 
 app.get("/dashboard", (req, res) => {
   const isGuest = !req.session.user;
+  const user = isGuest ? null : users.find(u => u.username === req.session.user);
   const userAchievements = isGuest ? [] : achievements.filter(a => a.user === req.session.user);
   const tierInfo = badgeTierInfo(userAchievements.length);
   const progress = badgeProgress(userAchievements.length);
@@ -162,7 +163,7 @@ app.get("/dashboard", (req, res) => {
     : "0.00";
 
   res.render("dashboard", {
-    username: req.session.user || null,
+    username: user?.name || req.session.user || null,
     isGuest,
     achievements: userAchievements,
     achievementCount: userAchievements.length,
@@ -181,6 +182,7 @@ app.get("/dashboard", (req, res) => {
 
 app.get("/profile", (req, res) => {
   if (!req.session.user) return res.redirect("/login");
+  const user = users.find(u => u.username === req.session.user);
   const userAchievements = achievements.filter(a => a.user === req.session.user);
   const tierInfo = badgeTierInfo(userAchievements.length);
 
@@ -202,8 +204,8 @@ app.get("/profile", (req, res) => {
   const userRecord = users.find(u => u.username === req.session.user) || {};
 
   res.render("profile", {
-    username: req.session.user,
-    email: userRecord.email || "",
+    username: userRecord.name || req.session.user,
+    email: req.session.user,
     bio: userRecord.bio || "",
     avatar: userRecord.avatar || "/badges/bronze.png",
     achievementCount: userAchievements.length,

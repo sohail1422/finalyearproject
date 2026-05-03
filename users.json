@@ -1,10 +1,12 @@
 [
   {
     "username": "admin",
-    "password": "admin"
+    "password": "admin",
+    "name": "Admin User"
   },
   {
     "username": "sohail16@outlook.com",
-    "password": "Welcome78791@"
+    "password": "Welcome78791@",
+    "name": "Sohail"
   }
 ]
