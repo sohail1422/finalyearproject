@@ -14,6 +14,9 @@
       <a href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
       <a href="/add"><i class="fas fa-plus"></i> Add Achievement</a>
       <a href="/profile"><i class="fas fa-user"></i> Profile</a>
+      <% if (!isGuest) { %>
+        <a href="/certificate"><i class="fas fa-file-certificate"></i> Certificate</a>
+      <% } %>
       <a href="/leaderboard"><i class="fas fa-trophy"></i> Leaderboard</a>
     </div>
     <div class="navbar-action"><a href="/logout" class="button"><i class="fas fa-sign-out-alt"></i> Logout</a></div>
@@ -33,6 +36,7 @@
         <% } else { %>
           <a class="button" href="/add"><i class="fas fa-plus"></i> Add achievement</a>
           <a class="button button-secondary" href="/profile"><i class="fas fa-user"></i> View profile</a>
+          <a class="button button-secondary" href="/certificate/preview"><i class="fas fa-file-certificate"></i> View certificate</a>
         <% } %>
       </div>
     </section>
@@ -108,5 +112,7 @@
       </div>
     </div>
   </main>
+  
+  
 </body>
 </html>

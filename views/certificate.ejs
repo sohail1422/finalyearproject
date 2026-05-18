@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Certificate Preview</title>
+  <link rel="stylesheet" href="/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <header class="navbar">
+    <div class="navbar-brand"><a href="/">Enrichment Passport</a></div>
+    <div class="navbar-menu">
+      <a href="/dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="/leaderboard"><i class="fas fa-trophy"></i> Leaderboard</a>
+    </div>
+    <div class="navbar-action"><a href="/logout" class="button"><i class="fas fa-sign-out-alt"></i> Logout</a></div>
+  </header>
+
+  <main class="container">
+    <div class="content-card">
+      <h1>Certificate preview</h1>
+      <p>This is a preview of the certificate that will be generated as a PDF. Click "Download PDF" to get the official certificate.</p>
+      <div style="display:flex; gap:1.5rem; align-items:center; margin-top:1rem;">
+        <div style="flex:1;">
+          <h2 style="margin-bottom:0.25rem;"><%= username %></h2>
+          <p style="margin:0"><strong>Tier:</strong> <%= currentTier %></p>
+          <p style="margin:0"><strong>Date:</strong> <%= new Date().toLocaleDateString() %></p>
+        </div>
+        <div>
+          <img src="<%= overallBadge %>" alt="Badge" width="100">
+        </div>
+      </div>
+
+      <hr style="margin:1rem 0;">
+
+      <h3>Achievements</h3>
+      <ul>
+        <% if (!achievements || achievements.length === 0) { %>
+          <li>No achievements recorded yet.</li>
+        <% } %>
+        <% achievements.forEach(a => { %>
+          <li><strong><%= a.title %></strong> — <small><%= a.dateLabel %></small></li>
+        <% }) %>
+      </ul>
+
+      <div style="margin-top:1.25rem; display:flex; gap:0.5rem;">
+        <a class="button" href="/certificate"><i class="fas fa-file-pdf"></i> Download PDF</a>
+        <a class="button button-secondary" href="/dashboard"><i class="fas fa-arrow-left"></i> Back to dashboard</a>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
